@@ -111,11 +111,6 @@
       <Output TaskParameter="Result" ItemName="TestProjects" />
     </JsonPeek>
     <Message Text="Project values: %(TestProjects.Name)" />
-    <!-- Test.json -->
-    <JsonPeek JPath="$.Projects" JsonInputPath="$(MSBuildProjectDirectory)\Test.json">
-      <Output TaskParameter="Result" ItemName="TestProjects2" />
-    </JsonPeek>
-    <Message Text="Project values2: %(TestProjects2.Name)" />
     <!-- Test assembly internal -->
     <JsonPeek JPath="$.GIT_COMMIT" JsonContent="$(VersionTestContent)">
       <Output TaskParameter="Result" ItemName="TestValue" />

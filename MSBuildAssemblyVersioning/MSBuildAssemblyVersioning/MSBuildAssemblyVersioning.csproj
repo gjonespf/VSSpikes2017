@@ -169,7 +169,7 @@
           AssemblyVersion="$(major).$(minor).$(revision).$(build)" 
           TODO: Autodetect this
           -->
-    <AssemblyInfo CodeLanguage="CS" OutputFile="$(MSBuildProjectDirectory)\AssemblyVersionInfo.cs" AssemblyDescription="Git SHA: $(commit) - $(branch)" AssemblyFileVersion="$(major).$(minor).$(revision).$(build) $(commit)/$(branch)" />
+    <AssemblyInfo CodeLanguage="CS" OutputFile="$(MSBuildProjectDirectory)\AssemblyVersionInfo.cs" AssemblyDescription="Git SHA: $(commit) - $(branch)" AssemblyFileVersion="$(major).$(minor).$(revision).$(build)" />
   </Target>
   <!--
      END ASSEMBLY VERSION NUMBER STAMPER

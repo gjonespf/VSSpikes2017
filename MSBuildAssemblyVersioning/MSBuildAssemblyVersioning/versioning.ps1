@@ -9,7 +9,7 @@ $AssemblyVersionsFilePath = "$($MSBuildProjectDirectory)\AssemblyVersion.json"
 Write-Host "Using AssemblyVersionsFilePath: $AssemblyVersionsFilePath"
 
 #Default versions
-if(!(Test-Path $AssemblyVersionsFilePath) -or (Get-Content $AssemblyVersionsFilePath -eq $Null))
+if(!(Test-Path $AssemblyVersionsFilePath) -or ((Get-Content $AssemblyVersionsFilePath) -eq $null))
 {
     Write-Host "Creating default file as it's missing"
     $version=@{
@@ -25,8 +25,6 @@ if(!(Test-Path $AssemblyVersionsFilePath) -or (Get-Content $AssemblyVersionsFile
 
 $version = (Get-Content -Path $AssemblyVersionsFilePath | ConvertFrom-Json)
 Write-Host "VERSIONING: Currently - Major: '$($version.BUILD_MAJOR)' Minor: '$($version.BUILD_MINOR)' Revision: '$($version.BUILD_REVISION)' Build: '$($version.BUILD_NUMBER)' Commit: '$($Env:GIT_COMMIT)' Branch: ' $($Env:GIT_BRANCH)'"
-
-#"$(hostname)" | Out-File -FilePath $Env:Temp\versioning.txt
 
 #Env overrides
 if($Env:BUILD_MAJOR) {

@@ -1,0 +1,15 @@
+{
+    "Projects": [
+        {
+            "Name": "P1",
+            "OutputFile": "P1.json",
+            "Variables": ["Var1", "Var2"]
+        },
+
+        {
+            "Name": "P2",
+            "OutputFile": "P2.json",
+            "Variables": ["Var1", "Var2"]
+        }
+    ]
+}

@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0B43DDDB-3960-49FD-9351-748D5CEE722D}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MSBuildAssemblyVersioning</RootNamespace>
+    <AssemblyName>MSBuildAssemblyVersioning</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+    <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net35\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+<Import Project="..\packages\JsonPoke.MSBuild.1.0.7\build\JsonPoke.MSBuild.Targets" Condition="Exists('..\packages\JsonPoke.MSBuild.1.0.7\build\JsonPoke.MSBuild.Targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\JsonPoke.MSBuild.1.0.7\build\JsonPoke.MSBuild.Targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JsonPoke.MSBuild.1.0.7\build\JsonPoke.MSBuild.Targets'))" />
+  </Target>
+
+  <Target Name="BeforeBuild" DependsOnTargets="AssemblyVersionStamping">
+    <!-- Testing JsonPeek -->
+      <PropertyGroup>
+        <JsonContent>
+        <![CDATA[{
+        "Projects":[
+        { "Name": "P1", "OutputFile": "P1.json", "Variables": [ "Var1", "Var2" ]},
+        { "Name": "P2", "OutputFile": "P2.json", "Variables": [ "Var1", "Var2" ] } ] }
+        ]]>
+        </JsonContent>
+        <VersionTestContent>
+        <![CDATA[{
+        "BUILD_NUMBER":  0,
+        "BUILD_REVISION":  17,
+        "BUILD_MINOR":  0,
+        "BUILD_MAJOR":  1,
+        "GIT_COMMIT":  "6d1a2a5aafeb44275b9a532797ba0bd6ab786f30",
+        "GIT_BRANCH":  "master" }
+        ]]>
+        </VersionTestContent>
+
+      </PropertyGroup>
+
+      <!-- Base test -->
+      <JsonPeek JPath="$.Projects" JsonContent="$(JsonContent)">
+        <Output TaskParameter="Result" ItemName="TestProjects" />
+      </JsonPeek>
+      <Message Text="Project values: %(TestProjects.Name)" />
+
+      <!-- Test.json -->
+      <JsonPeek JPath="$.Projects" JsonInputPath="$(MSBuildProjectDirectory)\Test.json">
+        <Output TaskParameter="Result" ItemName="TestProjects2" />
+      </JsonPeek>
+      <Message Text="Project values2: %(TestProjects2.Name)" />
+
+      <!-- Test assembly internal -->
+      <JsonPeek JPath="$.GIT_COMMIT" JsonContent="$(VersionTestContent)">
+        <Output TaskParameter="Result" ItemName="TestValue" />
+      </JsonPeek>
+      <Message Text="Values: $(TestValue) $TestValue" />
+
+      <!-- Test assembly file -->
+      <JsonPeek JPath="$.GIT_COMMIT" JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json">
+        <Output TaskParameter="Result" ItemName="TestValue2" />
+      </JsonPeek>
+      <Message Text="Values: '$(TestValue2)' $TestValue2" />
+      
+  </Target>
+
+  <!--
+     START ASSEMBLY VERSION NUMBER STAMPER
+  -->
+  <!-- Trigger this by uncommenting below / copying out or adding 'DependsOnTargets="AssemblyVersionStamping"' to an existing BeforeBuild target -->
+  <!--
+    <Target Name="BeforeBuild" DependsOnTargets="AssemblyVersionStamping">
+    </Target>
+  -->
+  <Import Project="$(MSBuildExtensionsPath32)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" Condition="Exists('$(MSBuildExtensionsPath32)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')" />
+  <Import Project="..\packages\JsonPoke.MSBuild.1.0.7\build\JsonPoke.MSBuild.Targets" Condition="Exists('..\packages\JsonPoke.MSBuild.1.0.7\build\JsonPoke.MSBuild.Targets')" />
+  <Target Name="AssemblyVersionStamping" Condition="Exists('$(MSBuildExtensionsPath32)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')">
+  <!-- The major, minor, build and revision parts defined -->
+      <PropertyGroup>
+        <PowerShellExe Condition=" '$(PowerShellExe)'=='' "> 
+          %WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe
+        </PowerShellExe>
+        <ScriptLocation Condition=" '$(ScriptLocation)'=='' ">
+          $(MSBuildProjectDirectory)\Versioning.ps1
+        </ScriptLocation>
+      </PropertyGroup>
+      <Exec Command="powershell -NonInteractive -executionpolicy Unrestricted -command &quot;&amp;'$(MSBuildProjectDirectory)\Versioning.ps1' -MSBuildProjectDirectory '$(MSBuildProjectDirectory)' &quot;" />
+
+      <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.BUILD_MAJOR">
+        <Output TaskParameter="Result" ItemName="major" />
+      </JsonPeek>
+      <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.BUILD_MINOR">
+        <Output TaskParameter="Result" ItemName="minor" />
+      </JsonPeek>
+      <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.BUILD_REVISION">
+        <Output TaskParameter="Result" ItemName="revision" />
+      </JsonPeek>
+      <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.BUILD_NUMBER">
+        <Output TaskParameter="Result" ItemName="build" />
+      </JsonPeek>
+      <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.GIT_COMMIT">
+        <Output TaskParameter="Result" ItemName="commit" />
+      </JsonPeek>
+      <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.GIT_BRANCH">
+        <Output TaskParameter="Result" ItemName="branch" />
+      </JsonPeek>
+
+      <Message Text="BuildVersion: $(major).$(minor).$(revision).$(build) - Commit: $(commit) - Branch: $(branch)" />
+      <Attrib Files="$(MSBuildProjectDirectory)\AssemblyVersionInfo.cs" Normal="true" />
+      <!-- *Don't change this for SP projects*
+          AssemblyVersion="$(major).$(minor).$(revision).$(build)" 
+          TODO: Autodetect this
+          -->
+      <AssemblyInfo CodeLanguage="CS" OutputFile="$(MSBuildProjectDirectory)\AssemblyVersionInfo.cs" AssemblyDescription="Git SHA: $(commit) - $(branch)" AssemblyFileVersion="$(major).$(minor).$(revision).$(build) $(commit)/$(branch)" />
+  </Target>
+  <!--
+     END ASSEMBLY VERSION NUMBER STAMPER
+  -->
+</Project>

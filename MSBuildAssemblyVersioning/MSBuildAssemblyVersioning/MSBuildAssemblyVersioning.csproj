@@ -124,8 +124,14 @@
     </JsonPeek>
     <Message Text="Values: '$(TestValue2)' $TestValue2" />
   </Target>
+
   <!--
      START ASSEMBLY VERSION NUMBER STAMPER
+     This is set up to 
+     - Build assembly details using PowerShell - ultimate customisability
+     - Details saved to JSON file $(MSBuildProjectDirectory)\AssemblyVersion.json in PowerShell
+     - Loaded back into MSBuild
+     - Applied to attribute CS, which is then built into the project output 
   -->
   <!-- Trigger this by uncommenting below / copying out or adding 'DependsOnTargets="AssemblyVersionStamping"' to an existing BeforeBuild target -->
   <!--
@@ -135,7 +141,6 @@
   <Import Project="$(MSBuildExtensionsPath32)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" Condition="Exists('$(MSBuildExtensionsPath32)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')" />
   <Import Project="..\packages\JsonPoke.MSBuild.1.0.7\build\JsonPoke.MSBuild.Targets" Condition="Exists('..\packages\JsonPoke.MSBuild.1.0.7\build\JsonPoke.MSBuild.Targets')" />
   <Target Name="AssemblyVersionStamping" Condition="Exists('$(MSBuildExtensionsPath32)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets')">
-    <!-- The major, minor, build and revision parts defined -->
     <PropertyGroup>
       <PowerShellExe Condition=" '$(PowerShellExe)'=='' "> 
           %WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe
@@ -145,24 +150,19 @@
         </ScriptLocation>
     </PropertyGroup>
     <Exec Command="powershell -NonInteractive -executionpolicy Unrestricted -command &quot;&amp;'$(MSBuildProjectDirectory)\Versioning.ps1' -MSBuildProjectDirectory '$(MSBuildProjectDirectory)' &quot;" />
-    <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.BUILD_MAJOR">
-      <Output TaskParameter="Result" ItemName="major" />
+    <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.VersionDetails">
+      <Output TaskParameter="Result" ItemName="VersionDetails" />
     </JsonPeek>
-    <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.BUILD_MINOR">
-      <Output TaskParameter="Result" ItemName="minor" />
-    </JsonPeek>
-    <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.BUILD_REVISION">
-      <Output TaskParameter="Result" ItemName="revision" />
-    </JsonPeek>
-    <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.BUILD_NUMBER">
-      <Output TaskParameter="Result" ItemName="build" />
-    </JsonPeek>
-    <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.GIT_COMMIT">
-      <Output TaskParameter="Result" ItemName="commit" />
-    </JsonPeek>
-    <JsonPeek JsonInputPath="$(MSBuildProjectDirectory)\AssemblyVersion.json" JPath="$.GIT_BRANCH">
-      <Output TaskParameter="Result" ItemName="branch" />
-    </JsonPeek>
+    <!--Message Text="Test: @(VersionDetails->'%(BUILD_MAJOR)','')" /-->
+    <!-- NOTE: These can be conditionally hard coded here if you wish -->
+    <PropertyGroup>
+        <major>@(VersionDetails->'%(BUILD_MAJOR)','')</major>
+        <minor>@(VersionDetails->'%(BUILD_MINOR)','')</minor>
+        <revision>@(VersionDetails->'%(BUILD_REVISION)','')</revision>
+        <build>@(VersionDetails->'%(BUILD_NUMBER)','')</build>
+        <commit>@(VersionDetails->'%(GIT_COMMIT)','')</commit>
+        <branch>@(VersionDetails->'%(GIT_BRANCH)','')</branch>
+    </PropertyGroup>
     <Message Text="BuildVersion: $(major).$(minor).$(revision).$(build) - Commit: $(commit) - Branch: $(branch)" />
     <Attrib Files="$(MSBuildProjectDirectory)\AssemblyVersionInfo.cs" Normal="true" />
     <!-- *Don't change this for SP projects*

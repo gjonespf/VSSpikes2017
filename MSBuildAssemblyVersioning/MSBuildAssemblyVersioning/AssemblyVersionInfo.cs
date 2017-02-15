@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Reflection.AssemblyDescription("Git SHA:  - ")]
-[assembly: System.Reflection.AssemblyFileVersion("... /")]
+[assembly: System.Reflection.AssemblyDescription("Git SHA: 73b15936467f1778e7b8cc614681f64c06b60841 - master")]
+[assembly: System.Reflection.AssemblyFileVersion("1.0.3.0 73b15936467f1778e7b8cc614681f64c06b60841/master")]
 
 
